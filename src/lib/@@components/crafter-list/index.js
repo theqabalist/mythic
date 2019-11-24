@@ -1,12 +1,8 @@
 'use strict';
 
 const {fromEvents} = require('kefir');
-const {
-  view, equals, set, not, T, F
-} = require('ramda');
-const {
-  div, h1, i
-} = require('@@hyperscript');
+const {view, equals, set, not, T, F} = require('ramda');
+const {div, h1, i} = require('@@hyperscript');
 const cx = require('classnames/dedupe');
 const {adjustClasses} = require('@@styles/classes');
 const {state$, lens: {editing}, updateState} = require('@@app-state');
@@ -23,11 +19,13 @@ const mkHoverStream = component => fromEvents(component, 'mouseover')
 const edit$ = state$
   .map(view(editing));
 
-module.exports = ({title, icon, color}) => {
+module.exports = ({title, icon, color, validDefaults, validAddition}) => {
   const identifier = title.toLowerCase();
   const addComponent = div('.ui.basic.segment.center.aligned', [i({className: cx('ui large add icon', color)})]);
 
-  const editThis$ = edit$.map(equals(identifier));
+  const editThis$ = edit$
+    .map(equals(identifier))
+    .skipDuplicates(equals);
 
   const component = div('.ui.segments', [
     div('.ui.center.aligned.basic.segment', [
@@ -36,7 +34,7 @@ module.exports = ({title, icon, color}) => {
         div('.content', [title])])]),
     Content({title, color}),
     addComponent,
-    ListInput({title, color, editThis$})]);
+    ListInput({title, color, validDefaults, editThis$, validAddition: validAddition || (() => T)})]);
 
   mkHoverStream(component)
     .filterBy(editThis$.map(not))

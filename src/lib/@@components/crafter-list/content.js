@@ -2,9 +2,7 @@
 
 const cx = require('classnames');
 const {div} = require('@@hyperscript');
-const {
-  view, length, compose, lensProp, equals, lensIndex
-} = require('ramda');
+const {view, length, compose, lensProp, equals, lensIndex} = require('ramda');
 const {state$, lens: {lists}} = require('@@app-state');
 const {hidden} = require('@@styles');
 

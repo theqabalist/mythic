@@ -1,43 +1,55 @@
 'use strict';
 
 const h = require('hyperscript');
-const {
-  div, input
-} = require('hyperscript-helpers')(h);
+const {div, select, option} = require('hyperscript-helpers')(h);
 const classnames = require('classnames');
-const {
-  compose, lensProp, over, append, pipe
-} = require('ramda');
+const {compose, lensProp, over, append, pipe, complement, isEmpty, ifElse, identity} = require('ramda');
 const {hidden} = require('@@styles');
 const {lens: {lists}, updateState} = require('@@app-state');
 const {fromEvents} = require('kefir');
 const {adjustClasses} = require('@@styles/classes');
+const {$} = require('@@externs');
 
-const enterKey = 13;
-
-module.exports = ({title, color, editThis$}) => {
+module.exports = ({title, color, validDefaults, validAddition, editThis$}) => {
   const identifier = title.toLowerCase();
   const listLens = compose(lists, lensProp(identifier));
 
-  const inputComponent = input({type: 'text', placeholder: title});
+  const inputComponent = select('.ui.fluid.search.selection.dropdown', {name: 'additionalItem'}, [
+    option({value: ''}, [title])
+  ]);
 
-  fromEvents(inputComponent, 'keydown')
-    .filter(e => e.keyCode === enterKey)
+  const $inputComponent = $(inputComponent);
+  const dropdown = $inputComponent.dropdown.bind($inputComponent);
+
+  fromEvents(inputComponent, 'change')
+    .debounce(10, {immediate: true})
+    .filter(pipe(e => e.target.value.trim(), complement(isEmpty)))
     .onValue(e => {
+      const addition = e.target.value.trim();
       updateState(pipe(
-        over(listLens, append(e.target.value.trim()))
+        over(listLens, ifElse(validAddition(addition), append(addition), identity))
       ));
-      e.target.value = '';
+      setTimeout(() => {
+        dropdown('clear');
+      });
     });
 
-  const component = div({className: classnames('ui basic segment', color, hidden)}, [
-    div('.ui.fluid.input', [
-      inputComponent])]);
+  const component = div({className: classnames('ui basic segment', color, hidden)}, [inputComponent]);
+
+  dropdown({
+    values: validDefaults.map(def => ({name: def, value: def})),
+    allowAdditions: true,
+    forceSelection: false,
+    selectOnKeydown: false,
+    allowReselection: true
+  });
 
   editThis$
     .onValue(editingThis => {
       adjustClasses(component, color, {[hidden]: !editingThis});
-      inputComponent.focus();
+      if (editingThis) {
+        dropdown('show').find('input')[0].focus();
+      }
     });
 
   return component;
