@@ -1,0 +1,26 @@
+{
+  "name": "river-gayze",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.7.1",
+    "classnames": "^2.2.6",
+    "emotion": "^10.0.23",
+    "fluture": "^12.0.1",
+    "hyperscript": "^2.0.2",
+    "hyperscript-helpers": "^3.0.3",
+    "kefir": "^3.8.6",
+    "ramda": "^0.26.1"
+  },
+  "scripts": {
+    "start": "webpack -w src/index.js -o dist/app.js"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}
