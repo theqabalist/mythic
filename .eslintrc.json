@@ -8,6 +8,7 @@
   },
   "rules": {
     "object-curly-spacing": ["error", "never"],
+    "object-curly-newline": ["error", {"multiline": true}],
     "max-len": ["off"]
   }
 }
