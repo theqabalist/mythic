@@ -7,8 +7,8 @@ const {state$, lens: {lists}, updateState} = require('@@app-state');
 const {hidden, clickable} = require('@@styles');
 const {$} = require('@@externs');
 const {css} = require('emotion');
-const {fromEvents} = require('kefir');
 const uuid = require('uuid/v4');
+const {$$} = require('@@stream');
 
 const hiddenDrag = css`
   .drag-handle, .remove {
@@ -33,7 +33,8 @@ const ListItem = ({lens, removeItem}) => {
     contentComponent
   ]);
 
-  fromEvents(removeComponent, 'click')
+  $$(removeComponent)
+    .click$
     .map(e => {
       e.stopPropagation();
       return null;
@@ -57,16 +58,15 @@ module.exports = ({title, color}) => {
   const containerComponent = div('.ui.large.ordered.list');
 
   const $sortable = $(containerComponent).sortable({handle: '.drag-handle'});
-  const sortStart$ = fromEvents($sortable, 'sortstart');
-  const sortEnd$ = fromEvents($sortable, 'sortend');
+  const $sortable$$ = $$($sortable);
 
   const removeItem = idx => () => {
     updateState(over(lens, remove(idx, 1)));
   };
 
-  sortStart$
+  $sortable$$.sortstart$
     .map(() => $sortable.sortable('toArray'))
-    .zip(sortEnd$.map(() => $sortable.sortable('toArray')))
+    .zip($sortable$$.sortend$.map(() => $sortable.sortable('toArray')))
     .map(([oldOrder, newOrder]) => newOrder.map(item => oldOrder.indexOf(item)))
     .onValue(reIndex => {
       updateState(over(lens, list => reIndex.map(idx => list[idx])));

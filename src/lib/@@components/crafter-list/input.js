@@ -6,9 +6,9 @@ const classnames = require('classnames');
 const {compose, lensProp, over, append, pipe, complement, isEmpty, ifElse, identity} = require('ramda');
 const {hidden} = require('@@styles');
 const {lens: {lists}, updateState} = require('@@app-state');
-const {fromEvents} = require('kefir');
 const {adjustClasses} = require('@@styles/classes');
 const {$} = require('@@externs');
+const {$$} = require('@@stream');
 
 module.exports = ({title, color, validDefaults, validAddition, editThis$}) => {
   const identifier = title.toLowerCase();
@@ -21,7 +21,7 @@ module.exports = ({title, color, validDefaults, validAddition, editThis$}) => {
   const $inputComponent = $(inputComponent);
   const dropdown = $inputComponent.dropdown.bind($inputComponent);
 
-  fromEvents(inputComponent, 'change')
+  $$(inputComponent).change$
     .debounce(10, {immediate: true})
     .filter(pipe(e => e.target.value.trim(), complement(isEmpty)))
     .onValue(e => {

@@ -1,19 +1,19 @@
 'use strict';
 
-const {fromEvents} = require('kefir');
 const {view, equals, set, not, T, F} = require('ramda');
 const {div, h1, i} = require('@@hyperscript');
 const cx = require('classnames/dedupe');
 const {adjustClasses} = require('@@styles/classes');
 const {state$, lens: {editing}, updateState} = require('@@app-state');
 const {hidden, clickable} = require('@@styles');
+const {$$} = require('@@stream');
 
 const ListInput = require('./input');
 const Content = require('./content');
 
-const mkHoverStream = component => fromEvents(component, 'mouseover')
+const mkHoverStream = component$$ => component$$.mouseover$
   .map(T)
-  .merge(fromEvents(component, 'mouseout').map(F))
+  .merge(component$$.mouseout$.map(F))
   .toProperty();
 
 const edit$ = state$
@@ -36,7 +36,9 @@ module.exports = ({title, icon, color, validDefaults, validAddition}) => {
     addComponent,
     ListInput({title, color, validDefaults, editThis$, validAddition: validAddition || (() => T)})]);
 
-  mkHoverStream(component)
+  const component$$ = $$(component);
+
+  mkHoverStream(component$$)
     .filterBy(editThis$.map(not))
     .onValue(hover => {
       adjustClasses(component, {raised: hover, [clickable]: hover});
@@ -49,12 +51,14 @@ module.exports = ({title, icon, color, validDefaults, validAddition}) => {
       adjustClasses(addComponent, color, hidden);
     });
 
-  fromEvents(component, 'click')
+  component$$
+    .click$
     .onValue(() => {
       updateState(set(editing, identifier));
     });
 
-  fromEvents(document.body, 'click')
+  $$(document.body)
+    .click$
     .filterBy(editThis$)
     .filter(e => !component.contains(e.target))
     .onValue(() => {

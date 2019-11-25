@@ -1,11 +1,11 @@
 'use strict';
 
-const {fromEvents} = require('kefir');
 const h = require('hyperscript');
 const {div} = require('hyperscript-helpers')(h);
 const classnames = require('classnames');
 const {css} = require('emotion');
 const {includes, curry} = require('ramda');
+const {$$} = require('@@stream');
 
 const CrafterList = require('@@components/crafter-list');
 
@@ -34,7 +34,7 @@ const Page = () => div({className: classnames('ui', 'equal', 'width', 'grid', 'c
     })])
 ]);
 
-fromEvents(window, 'load')
+$$(window).load$
   .take(1)
   .onValue(() => {
     document.body.appendChild(Page());
