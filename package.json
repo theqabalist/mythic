@@ -11,7 +11,8 @@
     "hyperscript": "^2.0.2",
     "hyperscript-helpers": "^3.0.3",
     "kefir": "^3.8.6",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "uuid": "^3.3.3"
   },
   "scripts": {
     "start": "webpack -w src/index.js -o dist/app.js"

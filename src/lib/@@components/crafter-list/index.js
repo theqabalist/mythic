@@ -45,7 +45,7 @@ module.exports = ({title, icon, color, validDefaults, validAddition}) => {
 
   editThis$
     .onValue(editingThis => {
-      adjustClasses(component, {raised: editingThis, [clickable]: !editingThis});
+      adjustClasses(component, {raised: editingThis, [clickable]: !editingThis, editing: editingThis});
       adjustClasses(addComponent, color, hidden);
     });
 
